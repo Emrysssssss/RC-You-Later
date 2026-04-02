@@ -291,6 +291,9 @@ public class RemoteControlCarController : MonoBehaviour
                 groundParticles[index].SetActive(IsGrounded);
             }
         }
+
+        if (Keyboard.current.pKey.isPressed)
+            Timer.DeleteSave();
     }
 
     private Vector3 ComputeAverageGroundNormal(Vector3 previousAverageGroundNormal)

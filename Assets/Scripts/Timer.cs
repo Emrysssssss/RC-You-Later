@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 public static class Timer
@@ -56,12 +58,33 @@ public static class Timer
     {
         // TODO : save our time steps (line 7 of this script) inside a file.
         string path = Path.Combine(Application.persistentDataPath, "timesteps.dat");
-        using BinaryWriter writer = new(File.Open(path, FileMode.Create));
+
+        // Check if a save file exists and compare the final time
+        if (File.Exists(path))
+        {
+            byte[] existingBytes = Convert.FromBase64String(File.ReadAllText(path));
+            using MemoryStream existingMs = new(existingBytes);
+            using BinaryReader reader = new(existingMs);
+            int count = reader.ReadInt32();
+            for (int i = 0; i < count - 1; i++)
+                reader.ReadInt64();
+            long savedBestTime = reader.ReadInt64();
+
+            if (steps.Last() >= savedBestTime)
+            {
+                UnityEngine.Debug.Log($"[Timer] No new highscore ({steps.Last() * 0.001f}s >= {savedBestTime * 0.001f}s), skipping save.");
+                return;
+            }
+        }
+
+        using MemoryStream ms = new();
+        using BinaryWriter writer = new(ms);
         writer.Write(steps.Count);
         foreach (long step in steps)
             writer.Write(step);
+        File.WriteAllText(path, Convert.ToBase64String(ms.ToArray()));
 
-        UnityEngine.Debug.Log($"[Timer] Saved {steps.Count} steps to {path}");
+        UnityEngine.Debug.Log($"[Timer] New highscore! Saved {steps.Count} steps to {path}");
     }
 
     public static void Load()
@@ -72,10 +95,25 @@ public static class Timer
         string path = Path.Combine(Application.persistentDataPath, "timesteps.dat");
         if (!File.Exists(path)) return;
 
+        byte[] bytes = Convert.FromBase64String(File.ReadAllText(path));
+        using MemoryStream ms = new(bytes);
+        using BinaryReader reader = new(ms);
         steps.Clear();
-        using BinaryReader reader = new(File.Open(path, FileMode.Open));
         int count = reader.ReadInt32();
         for (int i = 0; i < count; i++)
             steps.Add(reader.ReadInt64());
+    }
+
+    public static void DeleteSave()
+    {
+        string path = Path.Combine(Application.persistentDataPath, "timesteps.dat");
+        if (!File.Exists(path))
+        {
+            UnityEngine.Debug.Log("[Timer] No save file found, nothing to delete.");
+            return;
+        }
+
+        File.Delete(path);
+        UnityEngine.Debug.Log("[Timer] Save file deleted, score has been reset.");
     }
 }
