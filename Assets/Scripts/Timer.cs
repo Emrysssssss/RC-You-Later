@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using UnityEngine;
 
 public static class Timer
 {
@@ -53,6 +55,13 @@ public static class Timer
     public static void Save()
     {
         // TODO : save our time steps (line 7 of this script) inside a file.
+        string path = Path.Combine(Application.persistentDataPath, "timesteps.dat");
+        using BinaryWriter writer = new(File.Open(path, FileMode.Create));
+        writer.Write(steps.Count);
+        foreach (long step in steps)
+            writer.Write(step);
+
+        UnityEngine.Debug.Log($"[Timer] Saved {steps.Count} steps to {path}");
     }
 
     public static void Load()
@@ -60,5 +69,13 @@ public static class Timer
         // TODO : load our time steps from a file (if we have any)
         // and store them inside our steps variable (line 7 of this script)
         // to show them to the player before starting a race.
+        string path = Path.Combine(Application.persistentDataPath, "timesteps.dat");
+        if (!File.Exists(path)) return;
+
+        steps.Clear();
+        using BinaryReader reader = new(File.Open(path, FileMode.Open));
+        int count = reader.ReadInt32();
+        for (int i = 0; i < count; i++)
+            steps.Add(reader.ReadInt64());
     }
 }
