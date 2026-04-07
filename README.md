@@ -54,4 +54,5 @@ Il y a quelque assets dans le dossier des Models mais tu peux en importer d'autr
 Ce que tu a rajouté dans le projet :
 
 
-
+- Shader de Dithering + Pixelisation de l'image + Color Quantization
+- Menu Principale avant le jeu
