@@ -56,3 +56,5 @@ Ce que tu a rajouté dans le projet :
 
 - Shader de Dithering + Pixelisation de l'image + Color Quantization
 - Menu Principale avant le jeu
+- PostProcess Effect sur le Play
+- Appuie sur "P" pour effacer toutes les donnés de score enregistrés

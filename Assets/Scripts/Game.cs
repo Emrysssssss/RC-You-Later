@@ -21,7 +21,10 @@ public class Game : MonoBehaviour
     private void Gate_OnPassed(Gate gate)
     {
         // First gate passed, disable tutorial.
-        tutorialPanel.SetActive(false);
+        if (tutorialPanel != null)
+        {
+            tutorialPanel.SetActive(false);
+        }
 
         // Unregister itself.
         Gate.OnPassed -= Gate_OnPassed;
